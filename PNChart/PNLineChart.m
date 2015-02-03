@@ -16,10 +16,13 @@
 
 @property (nonatomic) NSMutableArray *chartLineArray;  // Array[CAShapeLayer]
 @property (nonatomic) NSMutableArray *chartPointArray; // Array[CAShapeLayer] save the point layer
+@property (nonatomic) NSMutableArray *chartFillArray; // Array[CAShapeLayer] save the point layer
 
+@property (nonatomic) NSMutableArray *chartFill;       // Array of fill path, one for each line.
 @property (nonatomic) NSMutableArray *chartPath;       // Array of line path, one for each line.
 @property (nonatomic) NSMutableArray *pointPath;       // Array of point path, one for each line
 @property (nonatomic) NSMutableArray *endPointsOfPath;      // Array of start and end points of each line path, one for each line
+
 @end
 
 @implementation PNLineChart
@@ -248,73 +251,73 @@
 
 - (void)strokeChart
 {
-    // // // 
+    // // //
     _chartPath = [[NSMutableArray alloc] init];
     _pointPath = [[NSMutableArray alloc] init];
+    _chartFill = [[NSMutableArray alloc] init];;
     
-    [self calculateChartPath:_chartPath andPointsPath:_pointPath andPathKeyPoints:_pathPoints andPathStartEndPoints:_endPointsOfPath];
+    [self calculateChartPath:_chartPath andPointsPath:_pointPath andFillPath:_chartFill andPathKeyPoints:_pathPoints andPathStartEndPoints:_endPointsOfPath];
+    
     // Draw each line
     for (NSUInteger lineIndex = 0; lineIndex < self.chartData.count; lineIndex++) {
         PNLineChartData *chartData = self.chartData[lineIndex];
         CAShapeLayer *chartLine = (CAShapeLayer *)self.chartLineArray[lineIndex];
         CAShapeLayer *pointLayer = (CAShapeLayer *)self.chartPointArray[lineIndex];
+        CAShapeLayer *areaLayer = (CAShapeLayer *)self.chartFillArray[lineIndex];
         UIGraphicsBeginImageContext(self.frame.size);
         // setup the color of the chart line
         if (chartData.color) {
             chartLine.strokeColor = [[chartData.color colorWithAlphaComponent:chartData.alpha]CGColor];
+            areaLayer.strokeColor = [UIColor greenColor].CGColor;
+            areaLayer.fillColor = [UIColor greenColor].CGColor;
         } else {
             chartLine.strokeColor = [PNGreen CGColor];
             pointLayer.strokeColor = [PNGreen CGColor];
         }
         
-        UIBezierPath *chartAreaPath = [UIBezierPath bezierPath];
-        NSArray *pathPoints = _pathPoints[lineIndex];
-        float minY = 0;
-        float maxY = self.frame.size.height;
-        float minX = self.frame.size.width;
-        float maxX = 0;
-        for (NSValue *point in pathPoints) {
-            CGPoint cgPoint = [point CGPointValue];
-            if ([pathPoints indexOfObject:point] == 0)
-                [chartAreaPath moveToPoint:cgPoint];
-            else {
-                [chartAreaPath addLineToPoint:cgPoint];
-            }
-            
-            minY = MAX(cgPoint.y, minY);
-            maxY = MIN(cgPoint.y, maxY);
-            maxX = MAX(cgPoint.x, maxX);
-            minX = MIN(cgPoint.x, minX);
-        }
-        //        NSLog(@"%@", val);
-        NSLog(@"(%0.2f, %0.2f), (%0.2f, %0.2f)", minX, maxY, maxX, minY);
+        //        UIBezierPath *chartAreaPath = [UIBezierPath bezierPath];
+        //        NSArray *pathPoints = _pathPoints[lineIndex];
+        //        float minY = 0;
+        //        float maxY = self.frame.size.height;
+        //        float minX = self.frame.size.width;
+        //        float maxX = 0;
+        //        for (NSValue *point in pathPoints) {
+        //            CGPoint cgPoint = [point CGPointValue];
+        //            if ([pathPoints indexOfObject:point] == 0)
+        //                [chartAreaPath moveToPoint:cgPoint];
+        //            else {
+        //                [chartAreaPath addLineToPoint:cgPoint];
+        //            }
+        //
+        //            minY = MAX(cgPoint.y, minY);
+        //            maxY = MIN(cgPoint.y, maxY);
+        //            maxX = MAX(cgPoint.x, maxX);
+        //            minX = MIN(cgPoint.x, minX);
+        //        }
+        //        //        NSLog(@"%@", val);
+        //        NSLog(@"(%0.2f, %0.2f), (%0.2f, %0.2f)", minX, maxY, maxX, minY);
+        //
+        //        [chartAreaPath addLineToPoint:CGPointMake(maxX, minY)];
+        //        [chartAreaPath addLineToPoint:CGPointMake(minX, minY)];
+        //        [chartAreaPath closePath];
+        //        [self.layer addSublayer:chartAreaLayer];
         
-        [chartAreaPath addLineToPoint:CGPointMake(maxX, minY)];
-        [chartAreaPath addLineToPoint:CGPointMake(minX, minY)];
-        [chartAreaPath closePath];
         
-        CAShapeLayer *chartAreaLayer = [CAShapeLayer layer];
-        chartAreaLayer.path = chartAreaPath.CGPath;
-        chartAreaLayer.lineCap       = kCALineCapButt;
-        chartAreaLayer.lineJoin      = kCALineJoinMiter;
-        chartAreaLayer.fillColor     = [[UIColor blueColor] CGColor];
-        chartAreaLayer.lineWidth     = chartData.lineWidth;
-        chartAreaLayer.strokeEnd     = 1.0;
+        //        areaLayer.path = chartAreaPath.CGPath;
         
-        [self.layer addSublayer:chartAreaLayer];
-        [chartAreaPath fill];
-        
-        CAGradientLayer *gradientFillLayer = [CAGradientLayer layer];
-        gradientFillLayer.mask = chartAreaLayer;
-        gradientFillLayer.frame = CGRectMake(minX, maxY, (maxX - minX), (minY-maxY));
-        gradientFillLayer.colors = @[[UIColor blueColor], [UIColor greenColor]];
-        [self.layer addSublayer:gradientFillLayer];
+        //        CAGradientLayer *gradientFillLayer = [CAGradientLayer layer];
+        //        gradientFillLayer.mask = areaLayer;
+        //        gradientFillLayer.frame = self.bounds;
+        //        gradientFillLayer.colors = @[[UIColor blueColor], [UIColor greenColor]];
+        //        [self.layer addSublayer:gradientFillLayer];
         
         UIBezierPath *progressline = [_chartPath objectAtIndex:lineIndex];
         UIBezierPath *pointPath = [_pointPath objectAtIndex:lineIndex];
+        UIBezierPath *fillPath = [_chartFill objectAtIndex:lineIndex];
         
         chartLine.path = progressline.CGPath;
         pointLayer.path = pointPath.CGPath;
+        areaLayer.path = fillPath.CGPath;
         
         [CATransaction begin];
         CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
@@ -338,7 +341,7 @@
 }
 
 
-- (void)calculateChartPath:(NSMutableArray *)chartPath andPointsPath:(NSMutableArray *)pointsPath andPathKeyPoints:(NSMutableArray *)pathPoints andPathStartEndPoints:(NSMutableArray *)pointsOfPath
+- (void)calculateChartPath:(NSMutableArray *)chartPath andPointsPath:(NSMutableArray *)pointsPath andFillPath:(NSMutableArray*)fillPath andPathKeyPoints:(NSMutableArray *)pathPoints andPathStartEndPoints:(NSMutableArray *)pointsOfPath
 {
     
     // Draw each line
@@ -349,12 +352,13 @@
         CGFloat innerGrade;
         
         UIBezierPath *progressline = [UIBezierPath bezierPath];
-        
+        UIBezierPath *chartFillPath = [UIBezierPath bezierPath];
         UIBezierPath *pointPath = [UIBezierPath bezierPath];
         
         
         [chartPath insertObject:progressline atIndex:lineIndex];
         [pointsPath insertObject:pointPath atIndex:lineIndex];
+        [fillPath insertObject:chartFillPath atIndex:lineIndex];
         
         if (!_showLabel) {
             _chartCavanHeight = self.frame.size.height - 2 * _yLabelHeight;
@@ -402,11 +406,18 @@
                     float x1 = x - (inflexionWidth / 2) / distance * (x - last_x);
                     float y1 = y - (inflexionWidth / 2) / distance * (y - last_y);
                     
+                    [chartFillPath addLineToPoint:CGPointMake(last_x1, last_y1)];
+                    [chartFillPath addLineToPoint:CGPointMake(x1, y1)];
+                    //                    [chartFillPath addArcWithCenter:circleCenter radius:inflexionWidth / 2 startAngle:0 endAngle:0 clockwise:YES];
+                    
                     [progressline moveToPoint:CGPointMake(last_x1, last_y1)];
                     [progressline addLineToPoint:CGPointMake(x1, y1)];
                     
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
+                }
+                else {
+                    [chartFillPath moveToPoint:CGPointMake(x, y)];
                 }
                 
                 last_x = x;
@@ -438,6 +449,9 @@
                     
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
+                }
+                else {
+                    [chartFillPath moveToPoint:CGPointMake(x, y)];
                 }
                 
                 last_x = x;
@@ -471,6 +485,9 @@
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
                 }
+                else {
+                    [chartFillPath moveToPoint:CGPointMake(x, y)];
+                }
                 
                 last_x = x;
                 last_y = y;
@@ -479,7 +496,11 @@
                 
                 if ( i != 0 ) {
                     [progressline addLineToPoint:CGPointMake(x, y)];
+                    [chartFillPath addLineToPoint:CGPointMake(x, y)];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x, y)]];
+                }
+                else {
+                    [chartFillPath moveToPoint:CGPointMake(x, y)];
                 }
                 
                 [progressline moveToPoint:CGPointMake(x, y)];
@@ -490,6 +511,8 @@
             
             [linePointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x, y)]];
         }
+        
+        [chartFillPath closePath];
         
         [pathPoints addObject:[linePointsArray copy]];
         [pointsOfPath addObject:[lineStartEndPointsArray copy]];
@@ -509,9 +532,13 @@
         for (CALayer *layer in self.chartPointArray) {
             [layer removeFromSuperlayer];
         }
+        for (CALayer *layer in self.chartFillArray) {
+            [layer removeFromSuperlayer];
+        }
         
         self.chartLineArray = [NSMutableArray arrayWithCapacity:data.count];
         self.chartPointArray = [NSMutableArray arrayWithCapacity:data.count];
+        self.chartFillArray = [NSMutableArray arrayWithCapacity:data.count];
         
         for (PNLineChartData *chartData in data) {
             // create as many chart line layers as there are data-lines
@@ -533,6 +560,16 @@
             pointLayer.lineWidth     = chartData.lineWidth;
             [self.layer addSublayer:pointLayer];
             [self.chartPointArray addObject:pointLayer];
+            
+            // create fill
+            CAShapeLayer *fillLayer = [CAShapeLayer layer];
+            fillLayer.strokeColor   = [[chartData.color colorWithAlphaComponent:chartData.alpha]CGColor];
+            fillLayer.lineCap       = kCALineCapRound;
+            fillLayer.lineJoin      = kCALineJoinBevel;
+            fillLayer.fillColor     = [UIColor greenColor].CGColor;
+            fillLayer.lineWidth     = chartData.lineWidth;
+            [self.layer addSublayer:fillLayer];
+            [self.chartFillArray addObject:fillLayer];
         }
         
         _chartData = data;
@@ -587,7 +624,7 @@
     
     [self prepareYLabelsWithData:data];
     
-    [self calculateChartPath:_chartPath andPointsPath:_pointPath andPathKeyPoints:_pathPoints andPathStartEndPoints:_endPointsOfPath];
+    [self calculateChartPath:_chartPath andPointsPath:_pointPath andFillPath:_chartFill andPathKeyPoints:_pathPoints andPathStartEndPoints:_endPointsOfPath];
     
     for (NSUInteger lineIndex = 0; lineIndex < self.chartData.count; lineIndex++) {
         
@@ -707,6 +744,7 @@
     self.backgroundColor = [UIColor whiteColor];
     self.clipsToBounds   = YES;
     self.chartLineArray  = [NSMutableArray new];
+    self.chartFillArray  = [NSMutableArray new];
     _showLabel           = YES;
     _pathPoints          = [[NSMutableArray alloc] init];
     _endPointsOfPath     = [[NSMutableArray alloc] init];
