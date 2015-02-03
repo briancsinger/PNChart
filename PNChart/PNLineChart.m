@@ -260,7 +260,7 @@
         UIGraphicsBeginImageContext(self.frame.size);
         // setup the color of the chart line
         if (chartData.color) {
-            chartLine.strokeColor = [[chartData.color colorWithAlphaComponent:chartData.alpha]CGColor];
+            chartLine.strokeColor = [UIColor purpleColor].CGColor;// [[chartData.color colorWithAlphaComponent:chartData.alpha]CGColor];
         } else {
             chartLine.strokeColor = [PNGreen CGColor];
             pointLayer.strokeColor = [PNGreen CGColor];
