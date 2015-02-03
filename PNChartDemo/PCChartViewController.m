@@ -22,6 +22,7 @@
         
         self.lineChart = [[PNLineChart alloc] initWithFrame:CGRectMake(0, 135.0, SCREEN_WIDTH, 200.0)];
         self.lineChart.yLabelFormat = @"%1.1f";
+//        self.lineChart.chartMargin = 10;
         self.lineChart.backgroundColor = [UIColor clearColor];
         [self.lineChart setXLabels:@[@"SEP 1",@"SEP 2",@"SEP 3",@"SEP 4",@"SEP 5",@"SEP 6",@"SEP 7"]];
         self.lineChart.showCoordinateAxis = YES;

@@ -46,7 +46,7 @@
     
     if (self) {
         _gradientFillLayer = [CAGradientLayer layer];
-//        _gradientFillLayer.frame = CGRectMake(0.0, 0.0, frame.size.width, frame.size.height);
+        //        _gradientFillLayer.frame = CGRectMake(0.0, 0.0, frame.size.width, frame.size.height);
         [self.layer addSublayer:_gradientFillLayer];
         [self setupDefaultValues];
     }
@@ -281,7 +281,7 @@
         UIBezierPath *progressline = [_chartPath objectAtIndex:lineIndex];
         UIBezierPath *pointPath = [_pointPath objectAtIndex:lineIndex];
         UIBezierPath *fillPath = [_chartFill objectAtIndex:lineIndex];
-
+        
         chartLine.path = progressline.CGPath;
         pointLayer.path = pointPath.CGPath;
         areaLayer.path = fillPath.CGPath;
@@ -313,13 +313,13 @@
             maxX = MAX(cgPoint.x, maxX);
             minX = MIN(cgPoint.x, minX);
         }
-
-        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight);
+        
+        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight+chartData.inflexionPointWidth);
         _gradientFillLayer.frame = frame;
-        _gradientFillLayer.endPoint = CGPointMake(0, (self.chartCavanHeight-maxY)/self.chartCavanHeight);
-        _gradientFillLayer.startPoint = CGPointMake(0, 1-((self.chartCavanHeight-minY)/self.chartCavanHeight));
+        _gradientFillLayer.endPoint = CGPointMake(0, ((self.chartCavanHeight-maxY)/self.chartCavanHeight)+0.1);
+        _gradientFillLayer.startPoint = CGPointMake(0, ((self.chartCavanHeight-minY)/self.chartCavanHeight));
         _gradientFillLayer.mask = areaLayer;
-        _gradientFillLayer.colors = @[(id)[UIColor clearColor].CGColor, (id)[[chartData.color colorWithAlphaComponent:chartData.alpha]CGColor]];
+        _gradientFillLayer.colors = @[(id)[[chartData.color colorWithAlphaComponent:0.4]CGColor], (id)[[chartData.color colorWithAlphaComponent:0]CGColor]];
         
         [CATransaction commit];
         
@@ -337,7 +337,7 @@
         
         CGFloat yValue, minXValue, maxXValue, minYValue;
         CGFloat innerGrade;
-        
+        maxXValue = 0;
         UIBezierPath *progressline = [UIBezierPath bezierPath];
         UIBezierPath *chartFillPath = [UIBezierPath bezierPath];
         UIBezierPath *pointPath = [UIBezierPath bezierPath];
@@ -404,7 +404,7 @@
                     
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
-
+                    
                     maxXValue = MAX(maxXValue, x1);
                 }
                 else {
@@ -665,7 +665,7 @@
         pointPathAnimation.autoreverses = NO;
         pointPathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
         [pointLayer addAnimation:pointPathAnimation forKey:@"animationKey"];
-
+        
         CABasicAnimation * fillPathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
         fillPathAnimation.fromValue = (id)areaLayer.path;
         fillPathAnimation.toValue = (id)[fillPath CGPath];
@@ -691,11 +691,12 @@
             minX = MIN(cgPoint.x, minX);
         }
         
-        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight);
+        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight+[self.chartData[lineIndex] inflexionPointWidth]);
         _gradientFillLayer.frame = frame;
-        _gradientFillLayer.endPoint = CGPointMake(0, (self.chartCavanHeight-maxY)/self.chartCavanHeight);
-        _gradientFillLayer.startPoint = CGPointMake(0, 1-((self.chartCavanHeight-minY)/self.chartCavanHeight));
+        _gradientFillLayer.endPoint = CGPointMake(0, ((self.chartCavanHeight-maxY)/self.chartCavanHeight)+0.1);
+        _gradientFillLayer.startPoint = CGPointMake(0, ((self.chartCavanHeight-minY)/self.chartCavanHeight));
         _gradientFillLayer.mask = areaLayer;
+        _gradientFillLayer.colors = @[(id)[[[self.chartData[lineIndex] color] colorWithAlphaComponent:0.4]CGColor], (id)[[[self.chartData[lineIndex] color] colorWithAlphaComponent:0]CGColor]];
         
         
     }
