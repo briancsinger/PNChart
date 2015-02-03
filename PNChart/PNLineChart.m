@@ -248,6 +248,7 @@
 
 - (void)strokeChart
 {
+    // // // 
     _chartPath = [[NSMutableArray alloc] init];
     _pointPath = [[NSMutableArray alloc] init];
     
