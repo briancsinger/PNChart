@@ -46,7 +46,7 @@
     
     if (self) {
         _gradientFillLayer = [CAGradientLayer layer];
-        _gradientFillLayer.frame = CGRectMake(0.0, 0.0, frame.size.width, frame.size.height);
+//        _gradientFillLayer.frame = CGRectMake(0.0, 0.0, frame.size.width, frame.size.height);
         [self.layer addSublayer:_gradientFillLayer];
         [self setupDefaultValues];
     }
@@ -278,44 +278,10 @@
             pointLayer.strokeColor = [PNGreen CGColor];
         }
         
-        //        UIBezierPath *chartAreaPath = [UIBezierPath bezierPath];
-        //        NSArray *pathPoints = _pathPoints[lineIndex];
-        //        float minY = 0;
-        //        float maxY = self.frame.size.height;
-        //        float minX = self.frame.size.width;
-        //        float maxX = 0;
-        //        for (NSValue *point in pathPoints) {
-        //            CGPoint cgPoint = [point CGPointValue];
-        //            if ([pathPoints indexOfObject:point] == 0)
-        //                [chartAreaPath moveToPoint:cgPoint];
-        //            else {
-        //                [chartAreaPath addLineToPoint:cgPoint];
-        //            }
-        //
-        //            minY = MAX(cgPoint.y, minY);
-        //            maxY = MIN(cgPoint.y, maxY);
-        //            maxX = MAX(cgPoint.x, maxX);
-        //            minX = MIN(cgPoint.x, minX);
-        //        }
-        //        //        NSLog(@"%@", val);
-        //        NSLog(@"(%0.2f, %0.2f), (%0.2f, %0.2f)", minX, maxY, maxX, minY);
-        //
-        //        [chartAreaPath addLineToPoint:CGPointMake(maxX, minY)];
-        //        [chartAreaPath addLineToPoint:CGPointMake(minX, minY)];
-        //        [chartAreaPath closePath];
-        //        [self.layer addSublayer:chartAreaLayer];
-        
-        
-        //        areaLayer.path = chartAreaPath.CGPath;
-        
-
-        
-        
         UIBezierPath *progressline = [_chartPath objectAtIndex:lineIndex];
         UIBezierPath *pointPath = [_pointPath objectAtIndex:lineIndex];
         UIBezierPath *fillPath = [_chartFill objectAtIndex:lineIndex];
 
-        
         chartLine.path = progressline.CGPath;
         pointLayer.path = pointPath.CGPath;
         areaLayer.path = fillPath.CGPath;
@@ -334,11 +300,26 @@
         if (chartData.inflexionPointStyle != PNLineChartPointStyleNone) {
             [pointLayer addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
         }
+        
+        NSArray *pathPoints = _pathPoints[lineIndex];
+        float minY = 0;
+        float maxY = self.frame.size.height;
+        float minX = self.frame.size.width;
+        float maxX = 0;
+        for (NSValue *point in pathPoints) {
+            CGPoint cgPoint = [point CGPointValue];
+            minY = MAX(cgPoint.y, minY);
+            maxY = MIN(cgPoint.y, maxY);
+            maxX = MAX(cgPoint.x, maxX);
+            minX = MIN(cgPoint.x, minX);
+        }
 
-        [fillPath fill];
-        _gradientFillLayer.frame = areaLayer.bounds;
+        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight);
+        _gradientFillLayer.frame = frame;
+        _gradientFillLayer.endPoint = CGPointMake(0, (self.chartCavanHeight-maxY)/self.chartCavanHeight);
+        _gradientFillLayer.startPoint = CGPointMake(0, 1-((self.chartCavanHeight-minY)/self.chartCavanHeight));
         _gradientFillLayer.mask = areaLayer;
-        _gradientFillLayer.colors = @[(id)[UIColor blueColor].CGColor, (id)[UIColor greenColor].CGColor];
+        _gradientFillLayer.colors = @[(id)[UIColor clearColor].CGColor, (id)[[chartData.color colorWithAlphaComponent:chartData.alpha]CGColor]];
         
         [CATransaction commit];
         
@@ -394,8 +375,6 @@
             int x = 2 * _chartMargin +  (i * offSetX);
             int y = _chartCavanHeight - (innerGrade * _chartCavanHeight) + (_yLabelHeight / 2);
             
-            minXValue = MIN(minXValue, x);
-            maxXValue = MAX(maxXValue, x);
             minYValue = MAX(minYValue, y);
             
             // Circular point
@@ -425,9 +404,12 @@
                     
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
+
+                    maxXValue = MAX(maxXValue, x1);
                 }
                 else {
                     [chartFillPath moveToPoint:CGPointMake(x, y)];
+                    minXValue = x;
                 }
                 
                 last_x = x;
@@ -462,9 +444,12 @@
                     
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
+                    
+                    maxXValue = MAX(maxXValue, x1);
                 }
                 else {
                     [chartFillPath moveToPoint:CGPointMake(x, y)];
+                    minXValue = x;
                 }
                 
                 last_x = x;
@@ -500,9 +485,12 @@
                     
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
+                    
+                    maxXValue = MAX(maxXValue, x1);
                 }
                 else {
                     [chartFillPath moveToPoint:CGPointMake(x, y)];
+                    minXValue = x;
                 }
                 
                 last_x = x;
@@ -514,9 +502,12 @@
                     [progressline addLineToPoint:CGPointMake(x, y)];
                     [chartFillPath addLineToPoint:CGPointMake(x, y)];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x, y)]];
+                    
+                    maxXValue = MAX(maxXValue, x);
                 }
                 else {
                     [chartFillPath moveToPoint:CGPointMake(x, y)];
+                    minXValue =x;
                 }
                 
                 [progressline moveToPoint:CGPointMake(x, y)];
@@ -529,7 +520,7 @@
         }
         
         [chartFillPath addLineToPoint:CGPointMake(maxXValue, minYValue)];
-        [chartFillPath addLineToPoint:CGPointMake(minYValue, minYValue)];
+        [chartFillPath addLineToPoint:CGPointMake(minXValue, minYValue)];
         [chartFillPath closePath];
         
         [pathPoints addObject:[linePointsArray copy]];
@@ -652,11 +643,11 @@
         
         CAShapeLayer *chartLine = (CAShapeLayer *)self.chartLineArray[lineIndex];
         CAShapeLayer *pointLayer = (CAShapeLayer *)self.chartPointArray[lineIndex];
-        
+        CAShapeLayer *areaLayer = (CAShapeLayer *)self.chartFillArray[lineIndex];
         
         UIBezierPath *progressline = [_chartPath objectAtIndex:lineIndex];
         UIBezierPath *pointPath = [_pointPath objectAtIndex:lineIndex];
-        
+        UIBezierPath *fillPath = [_chartFill objectAtIndex:lineIndex];
         
         CABasicAnimation * pathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
         pathAnimation.fromValue = (id)chartLine.path;
@@ -674,9 +665,37 @@
         pointPathAnimation.autoreverses = NO;
         pointPathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
         [pointLayer addAnimation:pointPathAnimation forKey:@"animationKey"];
+
+        CABasicAnimation * fillPathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+        fillPathAnimation.fromValue = (id)areaLayer.path;
+        fillPathAnimation.toValue = (id)[fillPath CGPath];
+        fillPathAnimation.duration = 0.5f;
+        fillPathAnimation.autoreverses = NO;
+        fillPathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        [areaLayer addAnimation:fillPathAnimation forKey:@"animationKey"];
         
         chartLine.path = progressline.CGPath;
         pointLayer.path = pointPath.CGPath;
+        areaLayer.path = fillPath.CGPath;
+        NSArray *pathPoints = _pathPoints[lineIndex];
+        
+        float minY = 0;
+        float maxY = self.frame.size.height;
+        float minX = self.frame.size.width;
+        float maxX = 0;
+        for (NSValue *point in pathPoints) {
+            CGPoint cgPoint = [point CGPointValue];
+            minY = MAX(cgPoint.y, minY);
+            maxY = MIN(cgPoint.y, maxY);
+            maxX = MAX(cgPoint.x, maxX);
+            minX = MIN(cgPoint.x, minX);
+        }
+        
+        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight);
+        _gradientFillLayer.frame = frame;
+        _gradientFillLayer.endPoint = CGPointMake(0, (self.chartCavanHeight-maxY)/self.chartCavanHeight);
+        _gradientFillLayer.startPoint = CGPointMake(0, 1-((self.chartCavanHeight-minY)/self.chartCavanHeight));
+        _gradientFillLayer.mask = areaLayer;
         
         
     }
