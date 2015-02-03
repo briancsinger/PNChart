@@ -55,7 +55,7 @@
             return [PNLineChartDataItem dataItemWithY:yValue];
         };
         
-        self.lineChart.chartData = @[data01, data02];
+        self.lineChart.chartData = @[data01];
         [self.lineChart strokeChart];
         self.lineChart.delegate = self;
         

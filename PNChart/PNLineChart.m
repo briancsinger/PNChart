@@ -45,6 +45,9 @@
     self = [super initWithFrame:frame];
     
     if (self) {
+        _gradientFillLayer = [CAGradientLayer layer];
+        _gradientFillLayer.frame = CGRectMake(0.0, 0.0, frame.size.width, frame.size.height);
+        [self.layer addSublayer:_gradientFillLayer];
         [self setupDefaultValues];
     }
     
@@ -305,15 +308,13 @@
         
         //        areaLayer.path = chartAreaPath.CGPath;
         
-        //        CAGradientLayer *gradientFillLayer = [CAGradientLayer layer];
-        //        gradientFillLayer.mask = areaLayer;
-        //        gradientFillLayer.frame = self.bounds;
-        //        gradientFillLayer.colors = @[[UIColor blueColor], [UIColor greenColor]];
-        //        [self.layer addSublayer:gradientFillLayer];
+
+        
         
         UIBezierPath *progressline = [_chartPath objectAtIndex:lineIndex];
         UIBezierPath *pointPath = [_pointPath objectAtIndex:lineIndex];
         UIBezierPath *fillPath = [_chartFill objectAtIndex:lineIndex];
+
         
         chartLine.path = progressline.CGPath;
         pointLayer.path = pointPath.CGPath;
@@ -333,6 +334,11 @@
         if (chartData.inflexionPointStyle != PNLineChartPointStyleNone) {
             [pointLayer addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
         }
+
+        [fillPath fill];
+        _gradientFillLayer.frame = areaLayer.bounds;
+        _gradientFillLayer.mask = areaLayer;
+        _gradientFillLayer.colors = @[(id)[UIColor blueColor].CGColor, (id)[UIColor greenColor].CGColor];
         
         [CATransaction commit];
         
@@ -348,7 +354,7 @@
     for (NSUInteger lineIndex = 0; lineIndex < self.chartData.count; lineIndex++) {
         PNLineChartData *chartData = self.chartData[lineIndex];
         
-        CGFloat yValue;
+        CGFloat yValue, minXValue, maxXValue, minYValue;
         CGFloat innerGrade;
         
         UIBezierPath *progressline = [UIBezierPath bezierPath];
@@ -387,6 +393,10 @@
             
             int x = 2 * _chartMargin +  (i * offSetX);
             int y = _chartCavanHeight - (innerGrade * _chartCavanHeight) + (_yLabelHeight / 2);
+            
+            minXValue = MIN(minXValue, x);
+            maxXValue = MAX(maxXValue, x);
+            minYValue = MAX(minYValue, y);
             
             // Circular point
             if (chartData.inflexionPointStyle == PNLineChartPointStyleCircle) {
@@ -447,6 +457,9 @@
                     [progressline moveToPoint:CGPointMake(last_x1, last_y1)];
                     [progressline addLineToPoint:CGPointMake(x1, y1)];
                     
+                    [chartFillPath addLineToPoint:CGPointMake(last_x1, last_y1)];
+                    [chartFillPath addLineToPoint:CGPointMake(x1, y1)];
+                    
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
                 }
@@ -482,6 +495,9 @@
                     [progressline moveToPoint:CGPointMake(last_x1, last_y1)];
                     [progressline addLineToPoint:CGPointMake(x1, y1)];
                     
+                    [chartFillPath addLineToPoint:CGPointMake(last_x1, last_y1)];
+                    [chartFillPath addLineToPoint:CGPointMake(x1, y1)];
+                    
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(last_x1, last_y1)]];
                     [lineStartEndPointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x1, y1)]];
                 }
@@ -512,6 +528,8 @@
             [linePointsArray addObject:[NSValue valueWithCGPoint:CGPointMake(x, y)]];
         }
         
+        [chartFillPath addLineToPoint:CGPointMake(maxXValue, minYValue)];
+        [chartFillPath addLineToPoint:CGPointMake(minYValue, minYValue)];
         [chartFillPath closePath];
         
         [pathPoints addObject:[linePointsArray copy]];
@@ -524,6 +542,7 @@
 - (void)setChartData:(NSArray *)data
 {
     if (data != _chartData) {
+        
         
         // remove all shape layers before adding new ones
         for (CALayer *layer in self.chartLineArray) {
@@ -571,6 +590,9 @@
             [self.layer addSublayer:fillLayer];
             [self.chartFillArray addObject:fillLayer];
         }
+        
+        
+        
         
         _chartData = data;
         

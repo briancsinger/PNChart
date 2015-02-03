@@ -10,7 +10,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import "PNChartDelegate.h"
 
-@interface PNLineChart : UIView
+@interface PNLineChart : UIView {
+    CAGradientLayer *_gradientFillLayer;
+}
 
 /**
  * Draws the chart in an animated fashion.
