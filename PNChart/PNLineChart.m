@@ -71,6 +71,7 @@
     }
     
     if (yStep == 0.0) {
+        
         PNChartLabel *minLabel = [[PNChartLabel alloc] initWithFrame:CGRectMake(0.0, (NSInteger)_chartCavanHeight, (NSInteger)_chartMargin, (NSInteger)_yLabelHeight)];
         minLabel.text = [NSString stringWithFormat:yLabelFormat, 0.0];
         [self setCustomStyleForYLabel:minLabel];
@@ -338,6 +339,8 @@
         CGFloat yValue, minXValue, maxXValue, minYValue;
         CGFloat innerGrade;
         maxXValue = 0;
+        minXValue = 0;
+        minYValue = 0;
         UIBezierPath *progressline = [UIBezierPath bezierPath];
         UIBezierPath *chartFillPath = [UIBezierPath bezierPath];
         UIBezierPath *pointPath = [UIBezierPath bezierPath];
