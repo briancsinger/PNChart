@@ -324,6 +324,13 @@
         _gradientFillLayer.mask = areaLayer;
         _gradientFillLayer.colors = @[(id)[[chartData.color colorWithAlphaComponent:0.4]CGColor], (id)[[chartData.color colorWithAlphaComponent:0]CGColor]];
         
+        CABasicAnimation *fillAnimation = [CABasicAnimation animationWithKeyPath:@"colors"];
+        fillAnimation.duration = 1.0;
+        fillAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        fillAnimation.fromValue = @[(id)[[chartData.color colorWithAlphaComponent:0]CGColor], (id)[[chartData.color colorWithAlphaComponent:0]CGColor]];
+        fillAnimation.toValue   = @[(id)[[chartData.color colorWithAlphaComponent:0.4]CGColor], (id)[[chartData.color colorWithAlphaComponent:0]CGColor]];
+        [_gradientFillLayer addAnimation:fillAnimation forKey:nil];
+        
         [CATransaction commit];
         
         UIGraphicsEndImageContext();
