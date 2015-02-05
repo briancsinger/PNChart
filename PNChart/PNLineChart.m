@@ -258,7 +258,9 @@
     // // //
     _chartPath = [[NSMutableArray alloc] init];
     _pointPath = [[NSMutableArray alloc] init];
-    _chartFill = [[NSMutableArray alloc] init];;
+    _chartFill = [[NSMutableArray alloc] init];
+    _pathPoints = [[NSMutableArray alloc] init];
+    
     
     [self calculateChartPath:_chartPath andPointsPath:_pointPath andFillPath:_chartFill andPathKeyPoints:_pathPoints andPathStartEndPoints:_endPointsOfPath];
     
@@ -637,6 +639,7 @@
 - (void)updateChartData:(NSArray *)data
 {
     _chartData = data;
+    _pathPoints = [[NSMutableArray alloc] init];
     
     [self prepareYLabelsWithData:data];
     
@@ -644,6 +647,7 @@
     
     for (NSUInteger lineIndex = 0; lineIndex < self.chartData.count; lineIndex++) {
         
+        PNLineChartData *chartData = self.chartData[lineIndex];
         CAShapeLayer *chartLine = (CAShapeLayer *)self.chartLineArray[lineIndex];
         CAShapeLayer *pointLayer = (CAShapeLayer *)self.chartPointArray[lineIndex];
         CAShapeLayer *areaLayer = (CAShapeLayer *)self.chartFillArray[lineIndex];
@@ -694,12 +698,12 @@
             minX = MIN(cgPoint.x, minX);
         }
         
-        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight+[self.chartData[lineIndex] inflexionPointWidth]);
+        CGRect frame = CGRectMake(0, 0, self.frame.size.width, self.chartCavanHeight+chartData.inflexionPointWidth);
         _gradientFillLayer.frame = frame;
         _gradientFillLayer.endPoint = CGPointMake(0, ((self.chartCavanHeight-maxY)/self.chartCavanHeight)+0.1);
         _gradientFillLayer.startPoint = CGPointMake(0, ((self.chartCavanHeight-minY)/self.chartCavanHeight));
         _gradientFillLayer.mask = areaLayer;
-        _gradientFillLayer.colors = @[(id)[[[self.chartData[lineIndex] color] colorWithAlphaComponent:0.4]CGColor], (id)[[[self.chartData[lineIndex] color] colorWithAlphaComponent:0]CGColor]];
+        _gradientFillLayer.colors = @[(id)[[chartData.color colorWithAlphaComponent:0.4]CGColor], (id)[[chartData.color colorWithAlphaComponent:0]CGColor]];
         
         
     }
@@ -852,5 +856,6 @@
 #pragma clang diagnostic pop
     }
 }
+
 
 @end
