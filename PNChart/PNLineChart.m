@@ -70,6 +70,8 @@
         _yChartLabels = [NSMutableArray new];
     }
     
+    [_yChartLabels removeAllObjects];
+    
     if (yStep == 0.0) {
         
         PNChartLabel *minLabel = [[PNChartLabel alloc] initWithFrame:CGRectMake(0.0, (NSInteger)_chartCavanHeight, (NSInteger)_chartMargin, (NSInteger)_yLabelHeight)];
