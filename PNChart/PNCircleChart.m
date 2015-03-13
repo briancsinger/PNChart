@@ -46,7 +46,7 @@
                        current:current
                      clockwise:clockwise
                         shadow:shadow
-                   shadowColor:PNGreen
+                   shadowColor:backgroundShadowColor
           displayCountingLabel:displayCountingLabel
              overrideLineWidth:@8.0f];
     
@@ -65,7 +65,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
                        current:current
                      clockwise:clockwise
                         shadow:shadow
-                   shadowColor:PNGreen
+                   shadowColor:backgroundShadowColor
           displayCountingLabel:displayCountingLabel
              overrideLineWidth:@8.0f
                backgroundColor:[UIColor colorWithWhite:0.95f alpha:1.0f]];
@@ -86,7 +86,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
                        current:current
                      clockwise:clockwise
                         shadow:shadow
-                   shadowColor:PNGreen
+                   shadowColor:backgroundShadowColor
           displayCountingLabel:displayCountingLabel
              overrideLineWidth:@8.0f
                backgroundColor:backgroundColor
@@ -140,7 +140,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
         _circleBackground.lineCap     = kCALineCapRound;
         _circleBackground.fillColor   = (backgroundColor ? backgroundColor.CGColor : [UIColor clearColor].CGColor);
         _circleBackground.lineWidth   = [_lineWidth floatValue];
-        _circleBackground.strokeColor = (hasBackgroundShadow ? backgroundShadowColor.CGColor : [UIColor clearColor].CGColor);
+        _circleBackground.strokeColor = (hasBackgroundShadow ? (backgroundShadowColor ? backgroundShadowColor.CGColor : [UIColor clearColor].CGColor) : [UIColor clearColor].CGColor);
         _circleBackground.strokeEnd   = 1.0;
         _circleBackground.zPosition   = -1;
         

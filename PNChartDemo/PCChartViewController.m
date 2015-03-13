@@ -98,7 +98,8 @@
                                                                    current:@60
                                                                  clockwise:YES
                                                          shadow:YES
-                                                    shadowColor:[UIColor grayColor] displayCountingLabel:YES
+                                                    shadowColor:[UIColor grayColor]
+                                           displayCountingLabel:YES
                                               overrideLineWidth:@(25.0f)
                                                 backgroundColor:nil];
 
