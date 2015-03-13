@@ -160,7 +160,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
         
         if (iconImage) {
             UIImageView *iconImageView = [[UIImageView alloc] initWithImage:iconImage];
-            iconImageView.center = CGPointMake(roundf(frame.size.width/2.0f), frame.size.height);
+            iconImageView.center = CGPointMake(roundf(frame.size.width/2.0f), frame.size.height - roundf(iconImage.size.height/2.0f));
             iconImageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
             [self addSubview:iconImageView];
         }
