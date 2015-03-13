@@ -72,8 +72,8 @@ displayCountingLabel:(BOOL)displayCountingLabel
         
         _displayCountingLabel = displayCountingLabel;
 
-        CGFloat startAngle = clockwise ? -90.0f : 270.0f;
-        CGFloat endAngle = clockwise ? -90.01f : 270.01f;
+        CGFloat startAngle = clockwise ? 120.0f : 270.0f;
+        CGFloat endAngle = clockwise ? 60.0f : 270.01f;
 
         _lineWidth = overrideLineWidth;
         
