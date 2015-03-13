@@ -59,10 +59,55 @@
              shadow:(BOOL)hasBackgroundShadow
         shadowColor:(UIColor *)backgroundShadowColor
 displayCountingLabel:(BOOL)displayCountingLabel
-  overrideLineWidth:(NSNumber *)overrideLineWidth
-{
-    self = [super initWithFrame:frame];
+  overrideLineWidth:(NSNumber *)overrideLineWidth {
+    return [self initWithFrame:frame
+                         total:total
+                       current:current
+                     clockwise:clockwise
+                        shadow:shadow
+                   shadowColor:PNGreen
+          displayCountingLabel:displayCountingLabel
+             overrideLineWidth:@8.0f
+               backgroundColor:[UIColor colorWithWhite:0.95f alpha:1.0f]];
+}
 
+- (id)initWithFrame:(CGRect)frame
+              total:(NSNumber *)total
+            current:(NSNumber *)current
+          clockwise:(BOOL)clockwise
+             shadow:(BOOL)hasBackgroundShadow
+        shadowColor:(UIColor *)backgroundShadowColor
+displayCountingLabel:(BOOL)displayCountingLabel
+  overrideLineWidth:(NSNumber *)overrideLineWidth
+    backgroundColor:(UIColor *)backgroundColor {
+    
+    return [self initWithFrame:frame
+                         total:total
+                       current:current
+                     clockwise:clockwise
+                        shadow:shadow
+                   shadowColor:PNGreen
+          displayCountingLabel:displayCountingLabel
+             overrideLineWidth:@8.0f
+               backgroundColor:backgroundColor
+                     iconImage:nil];
+
+}
+
+- (id)initWithFrame:(CGRect)frame
+              total:(NSNumber *)total
+            current:(NSNumber *)current
+          clockwise:(BOOL)clockwise
+             shadow:(BOOL)hasBackgroundShadow
+        shadowColor:(UIColor *)backgroundShadowColor
+displayCountingLabel:(BOOL)displayCountingLabel
+  overrideLineWidth:(NSNumber *)overrideLineWidth
+    backgroundColor:(UIColor *)backgroundColor
+          iconImage:(UIImage*)iconImage {
+    
+    
+    self = [super initWithFrame:frame];
+    
     if (self) {
         _total = total;
         _current = current;
@@ -71,10 +116,10 @@ displayCountingLabel:(BOOL)displayCountingLabel
         _chartType = PNChartFormatTypePercent;
         
         _displayCountingLabel = displayCountingLabel;
-
+        
         CGFloat startAngle = clockwise ? 120.0f : 270.0f;
         CGFloat endAngle = clockwise ? 60.0f : 270.01f;
-
+        
         _lineWidth = overrideLineWidth;
         
         UIBezierPath *circlePath = [UIBezierPath bezierPathWithArcCenter:CGPointMake(self.frame.size.width/2.0f, self.frame.size.height/2.0f)
@@ -82,26 +127,26 @@ displayCountingLabel:(BOOL)displayCountingLabel
                                                               startAngle:DEGREES_TO_RADIANS(startAngle)
                                                                 endAngle:DEGREES_TO_RADIANS(endAngle)
                                                                clockwise:clockwise];
-
+        
         _circle               = [CAShapeLayer layer];
         _circle.path          = circlePath.CGPath;
         _circle.lineCap       = kCALineCapRound;
         _circle.fillColor     = [UIColor clearColor].CGColor;
         _circle.lineWidth     = [_lineWidth floatValue];
         _circle.zPosition     = 1;
-
+        
         _circleBackground             = [CAShapeLayer layer];
         _circleBackground.path        = circlePath.CGPath;
         _circleBackground.lineCap     = kCALineCapRound;
-        _circleBackground.fillColor   = [UIColor clearColor].CGColor;
+        _circleBackground.fillColor   = (backgroundColor ? backgroundColor.CGColor : [UIColor clearColor].CGColor);
         _circleBackground.lineWidth   = [_lineWidth floatValue];
         _circleBackground.strokeColor = (hasBackgroundShadow ? backgroundShadowColor.CGColor : [UIColor clearColor].CGColor);
         _circleBackground.strokeEnd   = 1.0;
         _circleBackground.zPosition   = -1;
-
+        
         [self.layer addSublayer:_circle];
         [self.layer addSublayer:_circleBackground];
-
+        
         _countingLabel = [[UICountingLabel alloc] initWithFrame:CGRectMake(0, 0, 100.0, 50.0)];
         [_countingLabel setTextAlignment:NSTextAlignmentCenter];
         [_countingLabel setFont:[UIFont boldSystemFontOfSize:16.0f]];
@@ -112,11 +157,18 @@ displayCountingLabel:(BOOL)displayCountingLabel
         if (_displayCountingLabel) {
             [self addSubview:_countingLabel];
         }
+        
+        if (iconImage) {
+            UIImageView *iconImageView = [[UIImageView alloc] initWithImage:iconImage];
+            iconImageView.center = CGPointMake(roundf(frame.size.width/2.0f), frame.size.height);
+            iconImageView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+            [self addSubview:iconImageView];
+        }
     }
-
+    
     return self;
-}
 
+}
 
 - (void)strokeChart
 {

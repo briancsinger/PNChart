@@ -52,6 +52,27 @@ displayCountingLabel:(BOOL)displayCountingLabel;
 displayCountingLabel:(BOOL)displayCountingLabel
   overrideLineWidth:(NSNumber *)overrideLineWidth;
 
+- (id)initWithFrame:(CGRect)frame
+              total:(NSNumber *)total
+            current:(NSNumber *)current
+          clockwise:(BOOL)clockwise
+             shadow:(BOOL)hasBackgroundShadow
+        shadowColor:(UIColor *)backgroundShadowColor
+displayCountingLabel:(BOOL)displayCountingLabel
+  overrideLineWidth:(NSNumber *)overrideLineWidth
+    backgroundColor:(UIColor *)backgroundColor;
+
+- (id)initWithFrame:(CGRect)frame
+              total:(NSNumber *)total
+            current:(NSNumber *)current
+          clockwise:(BOOL)clockwise
+             shadow:(BOOL)hasBackgroundShadow
+        shadowColor:(UIColor *)backgroundShadowColor
+displayCountingLabel:(BOOL)displayCountingLabel
+  overrideLineWidth:(NSNumber *)overrideLineWidth
+    backgroundColor:(UIColor *)backgroundColor
+          iconImage:(UIImage*)iconImage;
+
 @property (strong, nonatomic) UICountingLabel *countingLabel;
 @property (nonatomic) UIColor *strokeColor;
 @property (nonatomic) UIColor *strokeColorGradientStart;
