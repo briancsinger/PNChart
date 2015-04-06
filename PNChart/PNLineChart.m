@@ -200,23 +200,25 @@
     for (NSInteger p = _pathPoints.count - 1; p >= 0; p--) {
         NSArray *linePointsArray = _endPointsOfPath[p];
         
-        for (int i = 0; i < linePointsArray.count - 1; i += 2) {
-            CGPoint p1 = [linePointsArray[i] CGPointValue];
-            CGPoint p2 = [linePointsArray[i + 1] CGPointValue];
-            
-            // Closest distance from point to line
-            float distance = fabsf(((p2.x - p1.x) * (touchPoint.y - p1.y)) - ((p1.x - touchPoint.x) * (p1.y - p2.y)));
-            distance /= hypot(p2.x - p1.x, p1.y - p2.y);
-            
-            if (distance <= 5.0) {
-                // Conform to delegate parameters, figure out what bezier path this CGPoint belongs to.
-                for (UIBezierPath *path in _chartPath) {
-                    BOOL pointContainsPath = CGPathContainsPoint(path.CGPath, NULL, p1, NO);
-                    
-                    if (pointContainsPath) {
-                        [_delegate userClickedOnLinePoint:touchPoint lineIndex:[_chartPath indexOfObject:path]];
+        if (linePointsArray.count > 0) {
+            for (int i = 0; i < linePointsArray.count - 1; i += 2) {
+                CGPoint p1 = [linePointsArray[i] CGPointValue];
+                CGPoint p2 = [linePointsArray[i + 1] CGPointValue];
+                
+                // Closest distance from point to line
+                float distance = fabsf(((p2.x - p1.x) * (touchPoint.y - p1.y)) - ((p1.x - touchPoint.x) * (p1.y - p2.y)));
+                distance /= hypot(p2.x - p1.x, p1.y - p2.y);
+                
+                if (distance <= 5.0) {
+                    // Conform to delegate parameters, figure out what bezier path this CGPoint belongs to.
+                    for (UIBezierPath *path in _chartPath) {
+                        BOOL pointContainsPath = CGPathContainsPoint(path.CGPath, NULL, p1, NO);
                         
-                        return;
+                        if (pointContainsPath) {
+                            [_delegate userClickedOnLinePoint:touchPoint lineIndex:[_chartPath indexOfObject:path]];
+                            
+                            return;
+                        }
                     }
                 }
             }

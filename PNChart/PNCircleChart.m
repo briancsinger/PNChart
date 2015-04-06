@@ -91,7 +91,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
              overrideLineWidth:@8.0f
                backgroundColor:backgroundColor
                      iconImage:nil];
-
+    
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -167,13 +167,13 @@ displayCountingLabel:(BOOL)displayCountingLabel
     }
     
     return self;
-
+    
 }
 
 - (void)strokeChart
 {
     // Add counting label
-
+    
     if (_displayCountingLabel) {
         NSString *format;
         switch (self.chartType) {
@@ -191,15 +191,15 @@ displayCountingLabel:(BOOL)displayCountingLabel
         self.countingLabel.format = format;
         [self addSubview:self.countingLabel];
     }
-
-
+    
+    
     // Add circle params
-
+    
     _circle.lineWidth   = [_lineWidth floatValue];
     _circleBackground.lineWidth = [_lineWidth floatValue];
     _circleBackground.strokeEnd = 1.0;
     _circle.strokeColor = _strokeColor.CGColor;
-
+    
     // Add Animation
     CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
     pathAnimation.duration = self.duration;
@@ -208,13 +208,13 @@ displayCountingLabel:(BOOL)displayCountingLabel
     pathAnimation.toValue = @([_current floatValue] / [_total floatValue]);
     [_circle addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
     _circle.strokeEnd   = [_current floatValue] / [_total floatValue];
-
+    
     [_countingLabel countFrom:0 to:[_current floatValue] withDuration:1.0];
-
-
+    
+    
     // Check if user wants to add a gradient from the start color to the bar color
     if (_strokeColorGradientStart) {
-
+        
         // Add gradient
         self.gradientMask = [CAShapeLayer layer];
         self.gradientMask.fillColor = [[UIColor clearColor] CGColor];
@@ -224,7 +224,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
         CGRect gradientFrame = CGRectMake(0, 0, 2*self.bounds.size.width, 2*self.bounds.size.height);
         self.gradientMask.frame = gradientFrame;
         self.gradientMask.path = _circle.path;
-
+        
         CAGradientLayer *gradientLayer = [CAGradientLayer layer];
         gradientLayer.startPoint = CGPointMake(0.5,1.0);
         gradientLayer.endPoint = CGPointMake(0.5,0.0);
@@ -235,13 +235,13 @@ displayCountingLabel:(BOOL)displayCountingLabel
                             (id)_strokeColorGradientStart.CGColor
                             ];
         gradientLayer.colors = colors;
-
+        
         [gradientLayer setMask:self.gradientMask];
-
+        
         [_circle addSublayer:gradientLayer];
-
+        
         self.gradientMask.strokeEnd = [_current floatValue] / [_total floatValue];
-
+        
         [self.gradientMask addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
     }
 }
@@ -251,7 +251,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
 - (void)growChartByAmount:(NSNumber *)growAmount
 {
     NSNumber *updatedValue = [NSNumber numberWithFloat:[_current floatValue] + [growAmount floatValue]];
-
+    
     // Add animation
     [self updateChartByCurrent:updatedValue];
 }
